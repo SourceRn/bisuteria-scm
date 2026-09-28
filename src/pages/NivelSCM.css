@@ -1,0 +1,136 @@
+.nivel-scm__error {
+  color: var(--color-danger);
+}
+
+.nivel-scm__panel {
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.nivel-scm__label {
+  font-size: 12px;
+  color: var(--color-text-soft);
+  margin-bottom: 10px;
+}
+
+.nivel-scm__bar-track {
+  width: 100%;
+  height: 10px;
+  background: var(--color-bg);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.nivel-scm__bar-fill {
+  height: 100%;
+  background: var(--color-sage);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.nivel-scm__current {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.nivel-scm__niveles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 690px) {
+  .nivel-scm__niveles {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nivel-scm__nivel-card {
+  background: var(--color-bg-soft);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 18px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.nivel-scm__nivel-card:hover {
+  border-color: var(--color-bg);
+}
+
+.nivel-scm__nivel-card.is-active {
+  border-color: var(--color-sage);
+  background: rgba(156, 174, 147, 0.15);
+}
+
+.nivel-scm__nivel-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.nivel-scm__nivel-desc {
+  font-size: 12px;
+  color: var(--color-text-soft);
+}
+
+.nivel-scm__checklist {
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.nivel-scm__checklist h2 {
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+
+.nivel-scm__checklist ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nivel-scm__checklist label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.nivel-scm__checklist input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-sage);
+  flex-shrink: 0;
+}
+
+.nivel-scm__checklist .is-done {
+  color: var(--color-text-soft);
+  text-decoration: line-through;
+}
+
+.nivel-scm__descripcion {
+  background: var(--color-bg-soft);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.nivel-scm__descripcion h2 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.nivel-scm__descripcion p {
+  font-size: 14px;
+  color: var(--color-text-soft);
+  line-height: 1.6;
+}

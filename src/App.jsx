@@ -8,6 +8,7 @@ import Proveedores from "./pages/Proveedores";
 import Inventario from "./pages/Inventario";
 import Pedidos from "./pages/Pedidos";
 import NivelSCM from "./pages/NivelSCM";
+import ComparativaPushPull from "./pages/ComparativaPushPull";
 
 export default function App() {
   return (
@@ -22,6 +23,14 @@ export default function App() {
           <Route path="/inventario" element={<ProtectedRoute><Inventario /></ProtectedRoute>} />
           <Route path="/pedidos" element={<ProtectedRoute><Pedidos /></ProtectedRoute>} />
           <Route path="/nivel-scm" element={<ProtectedRoute><NivelSCM /></ProtectedRoute>} />
+          <Route
+            path="/comparativa"
+            element={
+              <ProtectedRoute>
+                <ComparativaPushPull />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -24,21 +24,44 @@ async function request(path, options = {}) {
   return res.json();
 }
 
-// TODO (dia 2): Productos
-// export const getProductos = (params = {}) => { ... };
-// export const crearProducto = (datos) => request("/productos", { method: "POST", body: JSON.stringify(datos) });
+// Productos
+export const getProductos = (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  return request(`/productos${query ? `?${query}` : ""}`);
+};
+export const getProducto = (id) => request(`/productos/${id}`);
+export const crearProducto = (datos) => request("/productos", { method: "POST", body: JSON.stringify(datos) });
+export const actualizarProducto = (id, datos) =>
+  request(`/productos/${id}`, { method: "PUT", body: JSON.stringify(datos) });
+export const actualizarEstrategiaProducto = (id, estrategia_logistica) =>
+  request(`/productos/${id}/estrategia`, { method: "PUT", body: JSON.stringify({ estrategia_logistica }) });
+export const eliminarProducto = (id) => request(`/productos/${id}`, { method: "DELETE" });
 
-// TODO (dia 2): Proveedores
-// export const getProveedores = () => request("/proveedores");
+// Proveedores
+export const getProveedores = (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  return request(`/proveedores${query ? `?${query}` : ""}`);
+};
+export const crearProveedor = (datos) => request("/proveedores", { method: "POST", body: JSON.stringify(datos) });
+export const actualizarProveedor = (id, datos) =>
+  request(`/proveedores/${id}`, { method: "PUT", body: JSON.stringify(datos) });
+export const eliminarProveedor = (id) => request(`/proveedores/${id}`, { method: "DELETE" });
 
-// TODO (dia 3): Movimientos de inventario
-// export const getMovimientosDeProducto = (productoId) => request(`/productos/${productoId}/movimientos`);
+// Movimientos de inventario
+export const getMovimientosDeProducto = (productoId) => request(`/productos/${productoId}/movimientos`);
+export const crearMovimiento = (datos) =>
+  request("/inventario/movimiento", { method: "POST", body: JSON.stringify(datos) });
 
-// TODO (dia 4): Estrategia push/pull
-// export const actualizarEstrategia = (id, estrategia) => ...
+// Pedidos SCM
+export const getPedidosScm = (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  return request(`/pedidos-scm${query ? `?${query}` : ""}`);
+};
+export const crearPedidoScm = (datos) => request("/pedidos-scm", { method: "POST", body: JSON.stringify(datos) });
+export const actualizarEstadoPedidoScm = (id, estado) =>
+  request(`/pedidos-scm/${id}/estado`, { method: "PUT", body: JSON.stringify({ estado }) });
 
-// TODO (dia 5): Pedidos SCM
-// export const getPedidosScm = () => request("/pedidos-scm");
-
-// TODO (dia 6): Nivel SCM + reportes
-// export const getNivelScm = () => request("/scm/estado");
+// Nivel SCM y reportes
+export const getNivelScm = () => request("/scm/estado");
+export const actualizarNivelScm = (datos) => request("/scm/nivel", { method: "PUT", body: JSON.stringify(datos) });
+export const getReportesScm = () => request("/scm/reportes");
