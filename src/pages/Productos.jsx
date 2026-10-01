@@ -17,7 +17,7 @@ export default function Productos() {
   const [mostrarForm, setMostrarForm] = useState(false);
   const [nuevo, setNuevo] = useState({
     nombre: "", descripcion: "", categoria: "", stock_actual: 0, stock_minimo: 0,
-    proveedor_id: "", costo_unitario: 0, estrategia_logistica: "PULL",
+    proveedor_id: "", costo_unitario: 0, precio_venta: 0, estrategia_logistica: "PULL",
   });
   const [guardando, setGuardando] = useState(false);
   const [editando, setEditando] = useState(null);
@@ -53,7 +53,7 @@ export default function Productos() {
       await crearProducto({ ...nuevo, proveedor_id: nuevo.proveedor_id || null });
       setNuevo({
         nombre: "", descripcion: "", categoria: "", stock_actual: 0, stock_minimo: 0,
-        proveedor_id: "", costo_unitario: 0, estrategia_logistica: "PULL",
+        proveedor_id: "", costo_unitario: 0, precio_venta: 0, estrategia_logistica: "PULL",
       });
       setMostrarForm(false);
       cargar();
@@ -75,6 +75,7 @@ export default function Productos() {
         stock_minimo: Number(editando.stock_minimo),
         proveedor_id: editando.proveedor_id || null,
         costo_unitario: Number(editando.costo_unitario),
+        precio_venta: Number(editando.precio_venta),
         estrategia_logistica: editando.estrategia_logistica,
       });
       setEditando(null);
@@ -165,6 +166,12 @@ export default function Productos() {
           </label>
 
           <label className="productos__field">
+            <span>Precio de venta</span>
+            <input type="number" placeholder="0.00" min="0" step="0.01" value={nuevo.precio_venta}
+              onChange={(e) => setNuevo((p) => ({ ...p, precio_venta: e.target.value }))} />
+          </label>
+
+          <label className="productos__field">
             <span>Estrategia logística</span>
             <select value={nuevo.estrategia_logistica} onChange={(e) => setNuevo((p) => ({ ...p, estrategia_logistica: e.target.value }))}>
               {ESTRATEGIAS.map((es) => (
@@ -193,6 +200,7 @@ export default function Productos() {
                   <th>Categoría</th>
                   <th>Stock</th>
                   <th>Mínimo</th>
+                  <th>Precio</th>
                   <th>Estrategia</th>
                   <th>Proveedor</th>
                   <th></th>
@@ -205,6 +213,7 @@ export default function Productos() {
                     <td>{p.categoria || "—"}</td>
                     <td>{p.stock_actual}</td>
                     <td>{p.stock_minimo}</td>
+                    <td>${p.precio_venta}</td>
                     <td><span className={`estrategia-badge estrategia-badge--${p.estrategia_logistica.toLowerCase()}`}>{p.estrategia_logistica}</span></td>
                     <td>{p.proveedor_nombre || "—"}</td>
                     <td>
@@ -222,7 +231,7 @@ export default function Productos() {
                   </tr>
                 ))}
                 {productos.length === 0 && (
-                  <tr><td colSpan={7} className="productos__empty">No hay productos con esos filtros.</td></tr>
+                  <tr><td colSpan={8} className="productos__empty">No hay productos con esos filtros.</td></tr>
                 )}
               </tbody>
             </table>
