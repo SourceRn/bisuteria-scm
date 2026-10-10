@@ -65,3 +65,5 @@ export const actualizarEstadoPedidoScm = (id, estado) =>
 export const getNivelScm = () => request("/scm/estado");
 export const actualizarNivelScm = (datos) => request("/scm/nivel", { method: "PUT", body: JSON.stringify(datos) });
 export const getReportesScm = () => request("/scm/reportes");
+
+export const getNotificacionesScm = () => request("/scm/notificaciones");

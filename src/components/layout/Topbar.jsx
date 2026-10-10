@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconChevronDown, IconLogout, IconMenu2 } from "@tabler/icons-react";
 import { useAuth } from "../../context/AuthContext";
+import NotificationBell from "./NotificationBell";
 import "./Topbar.css";
 
 export default function Topbar({ titulo, onMenuClick }) {
@@ -36,24 +37,28 @@ export default function Topbar({ titulo, onMenuClick }) {
         <h1 className="topbar__title">{titulo}</h1>
       </div>
 
-      <div className="topbar__user" ref={menuRef}>
-        <button className="topbar__trigger" onClick={() => setAbierto((v) => !v)}>
-          <span className="topbar__avatar">{inicial}</span>
-          <span className="topbar__email">{usuario?.email}</span>
-          <IconChevronDown size={14} stroke={1.8} />
-        </button>
+      <div className="topbar__right">
+        <NotificationBell />
 
-        {abierto && (
-          <div className="topbar__menu">
-            <div className="topbar__menu-header">
-              <p className="topbar__menu-email">{usuario?.email}</p>
+        <div className="topbar__user" ref={menuRef}>
+          <button className="topbar__trigger" onClick={() => setAbierto((v) => !v)}>
+            <span className="topbar__avatar">{inicial}</span>
+            <span className="topbar__email">{usuario?.email}</span>
+            <IconChevronDown size={14} stroke={1.8} />
+          </button>
+
+          {abierto && (
+            <div className="topbar__menu">
+              <div className="topbar__menu-header">
+                <p className="topbar__menu-email">{usuario?.email}</p>
+              </div>
+              <button className="topbar__menu-item" onClick={handleLogout}>
+                <IconLogout size={15} stroke={1.8} />
+                Cerrar sesión
+              </button>
             </div>
-            <button className="topbar__menu-item" onClick={handleLogout}>
-              <IconLogout size={15} stroke={1.8} />
-              Cerrar sesión
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

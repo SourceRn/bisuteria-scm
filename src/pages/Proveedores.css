@@ -195,3 +195,21 @@
   font-size: 13px;
   font-weight: 500;
 }
+
+.productos__row-nombre-con-imagen {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.productos__thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.productos__thumb--vacio {
+  background: var(--color-bg);
+}

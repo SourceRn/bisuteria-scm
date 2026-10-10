@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/layout/Layout";
+import { supabase } from "../services/supabase";
 import { getProductos, getProveedores, crearProducto, actualizarProducto, eliminarProducto } from "../services/api";
 import "./Productos.css";
 
@@ -22,6 +23,9 @@ export default function Productos() {
   const [guardando, setGuardando] = useState(false);
   const [editando, setEditando] = useState(null);
   const [guardandoEdicion, setGuardandoEdicion] = useState(false);
+
+  const [archivoImagen, setArchivoImagen] = useState(null);
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
 
   function cargar() {
     setCargando(true);
@@ -46,21 +50,41 @@ export default function Productos() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buscar, estrategia, stockBajo]);
 
+  async function subirImagen(archivo) {
+    const extension = archivo.name.split(".").pop();
+    const nombreArchivo = `${crypto.randomUUID()}.${extension}`;
+
+    const { error } = await supabase.storage.from("productos").upload(nombreArchivo, archivo);
+    if (error) throw new Error(`No se pudo subir la imagen: ${error.message}`);
+
+    const { data } = supabase.storage.from("productos").getPublicUrl(nombreArchivo);
+    return data.publicUrl;
+  }
+
   async function handleCrear(e) {
     e.preventDefault();
     setGuardando(true);
     try {
-      await crearProducto({ ...nuevo, proveedor_id: nuevo.proveedor_id || null });
+      let imagen_url = "";
+      if (archivoImagen) {
+        setSubiendoImagen(true);
+        imagen_url = await subirImagen(archivoImagen);
+        setSubiendoImagen(false);
+      }
+
+      await crearProducto({ ...nuevo, proveedor_id: nuevo.proveedor_id || null, imagen_url });
       setNuevo({
         nombre: "", descripcion: "", categoria: "", stock_actual: 0, stock_minimo: 0,
         proveedor_id: "", costo_unitario: 0, precio_venta: 0, estrategia_logistica: "PULL",
       });
+      setArchivoImagen(null);
       setMostrarForm(false);
       cargar();
     } catch (err) {
       setError(err.message);
     } finally {
       setGuardando(false);
+      setSubiendoImagen(false);
     }
   }
 
@@ -68,6 +92,11 @@ export default function Productos() {
     e.preventDefault();
     setGuardandoEdicion(true);
     try {
+      let imagen_url = editando.imagen_url;
+      if (archivoImagen) {
+        imagen_url = await subirImagen(archivoImagen);
+      }
+
       await actualizarProducto(editando.id, {
         nombre: editando.nombre,
         descripcion: editando.descripcion,
@@ -76,9 +105,11 @@ export default function Productos() {
         proveedor_id: editando.proveedor_id || null,
         costo_unitario: Number(editando.costo_unitario),
         precio_venta: Number(editando.precio_venta),
+        imagen_url,
         estrategia_logistica: editando.estrategia_logistica,
       });
       setEditando(null);
+      setArchivoImagen(null);
       cargar();
     } catch (err) {
       setError(err.message);
@@ -172,6 +203,15 @@ export default function Productos() {
           </label>
 
           <label className="productos__field">
+            <span>Imagen</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setArchivoImagen(e.target.files[0])}
+            />
+          </label>
+
+          <label className="productos__field">
             <span>Estrategia logística</span>
             <select value={nuevo.estrategia_logistica} onChange={(e) => setNuevo((p) => ({ ...p, estrategia_logistica: e.target.value }))}>
               {ESTRATEGIAS.map((es) => (
@@ -181,7 +221,7 @@ export default function Productos() {
           </label>
 
           <button type="submit" disabled={guardando} className="productos__submit">
-            {guardando ? "Guardando..." : "Guardar"}
+            {subiendoImagen ? "Subiendo imagen..." : guardando ? "Guardando..." : "Guardar"}
           </button>
         </form>
       )}
@@ -192,50 +232,55 @@ export default function Productos() {
         <p>Cargando...</p>
       ) : (
         <div className="table-scroll">
-          <div className="table-scroll">
-            <table className="productos__table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Categoría</th>
-                  <th>Stock</th>
-                  <th>Mínimo</th>
-                  <th>Precio</th>
-                  <th>Estrategia</th>
-                  <th>Proveedor</th>
-                  <th></th>
+          <table className="productos__table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Stock</th>
+                <th>Mínimo</th>
+                <th>Precio</th>
+                <th>Estrategia</th>
+                <th>Proveedor</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {productos.map((p) => (
+                <tr key={p.id} className={p.stock_actual <= p.stock_minimo ? "productos__row--critico" : ""}>
+                  <td className="productos__row-nombre-con-imagen">
+                    {p.imagen_url ? (
+                      <img src={p.imagen_url} alt={p.nombre} className="productos__thumb" />
+                    ) : (
+                      <div className="productos__thumb productos__thumb--vacio" />
+                    )}
+                    <span className="productos__row-name">{p.nombre}</span>
+                  </td>
+                  <td>{p.categoria || "—"}</td>
+                  <td>{p.stock_actual}</td>
+                  <td>{p.stock_minimo}</td>
+                  <td>${p.precio_venta}</td>
+                  <td><span className={`estrategia-badge estrategia-badge--${p.estrategia_logistica.toLowerCase()}`}>{p.estrategia_logistica}</span></td>
+                  <td>{p.proveedor_nombre || "—"}</td>
+                  <td>
+                    <button className="productos__edit-btn"
+                    onClick={() => setEditando({
+                      ...p,
+                      proveedor_id: p.proveedor_id || "",
+                      descripcion: p.descripcion || "",
+                      categoria: p.categoria || "",
+                    })}>
+                      Editar
+                    </button>
+                    <button className="productos__delete-btn" onClick={() => handleEliminar(p)}>Eliminar</button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {productos.map((p) => (
-                  <tr key={p.id} className={p.stock_actual <= p.stock_minimo ? "productos__row--critico" : ""}>
-                    <td><span className="productos__row-name">{p.nombre}</span></td>
-                    <td>{p.categoria || "—"}</td>
-                    <td>{p.stock_actual}</td>
-                    <td>{p.stock_minimo}</td>
-                    <td>${p.precio_venta}</td>
-                    <td><span className={`estrategia-badge estrategia-badge--${p.estrategia_logistica.toLowerCase()}`}>{p.estrategia_logistica}</span></td>
-                    <td>{p.proveedor_nombre || "—"}</td>
-                    <td>
-                      <button className="productos__edit-btn" 
-                      onClick={() => setEditando({
-                        ...p,
-                        proveedor_id: p.proveedor_id || "",
-                        descripcion: p.descripcion || "",
-                        categoria: p.categoria || "",
-                      })}>
-                        Editar
-                      </button>
-                      <button className="productos__delete-btn" onClick={() => handleEliminar(p)}>Eliminar</button>
-                    </td>
-                  </tr>
-                ))}
-                {productos.length === 0 && (
-                  <tr><td colSpan={8} className="productos__empty">No hay productos con esos filtros.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+              ))}
+              {productos.length === 0 && (
+                <tr><td colSpan={8} className="productos__empty">No hay productos con esos filtros.</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -270,6 +315,18 @@ export default function Productos() {
             <label>Costo unitario
               <input type="number" min="0" step="0.01" value={editando.costo_unitario}
                 onChange={(e) => setEditando((p) => ({ ...p, costo_unitario: e.target.value }))} />
+            </label>
+            <label>Precio de venta
+              <input type="number" min="0" step="0.01" value={editando.precio_venta}
+                onChange={(e) => setEditando((p) => ({ ...p, precio_venta: e.target.value }))} />
+            </label>
+            <label>Imagen actual
+              {editando.imagen_url ? (
+                <img src={editando.imagen_url} alt={editando.nombre} style={{ width: "100%", borderRadius: 8, marginBottom: 8 }} />
+              ) : (
+                <p style={{ fontSize: 12, color: "var(--color-text-soft)" }}>Sin imagen</p>
+              )}
+              <input type="file" accept="image/*" onChange={(e) => setArchivoImagen(e.target.files[0])} />
             </label>
             <label>Estrategia logística
               <select value={editando.estrategia_logistica} onChange={(e) => setEditando((p) => ({ ...p, estrategia_logistica: e.target.value }))}>
